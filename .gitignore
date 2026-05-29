@@ -1,4 +1,5 @@
 ﻿# Byte-compiled / optimized / DLL files
+.vscode/
 __pycache__/
 *.py[codz]
 *$py.class
@@ -70,7 +71,7 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-
+.claude/
 # PyBuilder
 .pybuilder/
 target/
