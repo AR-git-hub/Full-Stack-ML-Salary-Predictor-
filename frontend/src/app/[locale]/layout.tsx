@@ -29,7 +29,6 @@ export default async function LocaleLayout({ children, params }: Props) {
     notFound()
   }
 
-  // Required for static rendering with next-intl
   setRequestLocale(locale)
 
   const messages = await getMessages()

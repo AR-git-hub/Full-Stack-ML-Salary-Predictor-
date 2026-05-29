@@ -17,7 +17,7 @@ export function ModelUpload() {
 
   const handleFile = useCallback(
     async (file: File) => {
-      if (!file.name.match(/\.(pkl|joblib)$/i)) {
+      if (!file.name.toLowerCase().endsWith('.pkl')) {
         setStatus('error')
         setMessage(t('invalidType'))
         return
@@ -89,7 +89,7 @@ export function ModelUpload() {
         <input
           id="model-file-input"
           type="file"
-          accept=".pkl,.joblib"
+          accept=".pkl"
           className="sr-only"
           onChange={onInputChange}
           disabled={status === 'loading'}

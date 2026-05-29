@@ -5,8 +5,6 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  // When BACKEND_URL is set (local dev without docker), proxy /api/v1 to FastAPI.
-  // In production nginx handles this routing.
   ...(process.env.BACKEND_URL
     ? {
         async rewrites() {
