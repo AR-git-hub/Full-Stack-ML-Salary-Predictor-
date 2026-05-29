@@ -25,7 +25,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* ── Header ──────────────────────────────────────────────────────────── */}
       <header className="bg-slate-900 shadow-lg">
         <div className="mx-auto max-w-5xl px-4 py-5 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -43,7 +42,6 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* ── Tab navigation ──────────────────────────────────────────────────── */}
       <div className="bg-white border-b border-slate-200 shadow-sm">
         <div className="mx-auto max-w-5xl px-4">
           <nav className="flex" role="tablist" aria-label="Main navigation">
@@ -67,7 +65,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ── Content ─────────────────────────────────────────────────────────── */}
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
         <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
           {activeTab === 'upload' && <ModelUpload />}
@@ -76,7 +73,6 @@ export default function HomePage() {
         </div>
       </main>
 
-      {/* ── Footer ──────────────────────────────────────────────────────────── */}
       <footer className="py-4 text-center text-xs text-slate-400">
         {tFooter('text')}
       </footer>

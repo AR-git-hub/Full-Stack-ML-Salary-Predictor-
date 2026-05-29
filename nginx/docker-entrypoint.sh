@@ -21,7 +21,7 @@ if [ "$NEED_UPGRADE" = "1" ]; then
     (
         echo "Waiting for SSL certificate..."
         while [ ! -f "$CERT_PATH" ]; do sleep 5; done
-        echo "Certificate found — switching to HTTPS"
+        echo "Certificate found - switching to HTTPS"
         cp /etc/nginx/nginx-https.conf /etc/nginx/nginx.conf
         nginx -s reload
     ) &
@@ -32,7 +32,7 @@ fi
         sleep 3600
         if [ -f "$RELOAD_SIGNAL" ]; then
             rm -f "$RELOAD_SIGNAL"
-            echo "Reload signal detected — reloading nginx"
+            echo "Reload signal detected - reloading nginx"
             nginx -s reload
         fi
     done
