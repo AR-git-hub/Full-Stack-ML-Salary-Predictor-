@@ -1,3 +1,7 @@
+'use client'
+
+import type { ReactNode } from 'react'
+import { useTranslations } from 'next-intl'
 import { AlertCircle, CheckCircle2, XCircle } from 'lucide-react'
 
 type Variant = 'success' | 'error' | 'info'
@@ -8,7 +12,7 @@ interface AlertProps {
   onDismiss?: () => void
 }
 
-const STYLES: Record<Variant, { container: string; icon: React.ReactNode }> = {
+const STYLES: Record<Variant, { container: string; icon: ReactNode }> = {
   success: {
     container: 'bg-emerald-50 border-emerald-300 text-emerald-800',
     icon: <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />,
@@ -24,7 +28,9 @@ const STYLES: Record<Variant, { container: string; icon: React.ReactNode }> = {
 }
 
 export function Alert({ variant, message, onDismiss }: AlertProps) {
+  const t = useTranslations('alert')
   const { container, icon } = STYLES[variant]
+
   return (
     <div
       role="alert"
@@ -36,8 +42,8 @@ export function Alert({ variant, message, onDismiss }: AlertProps) {
         <button
           type="button"
           onClick={onDismiss}
-          aria-label="Dismiss"
-          className="shrink-0 opacity-60 hover:opacity-100 transition-opacity"
+          aria-label={t('dismiss')}
+          className="shrink-0 opacity-60 transition-opacity hover:opacity-100"
         >
           <XCircle className="h-4 w-4" />
         </button>

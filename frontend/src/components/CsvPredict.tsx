@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useState, type DragEvent } from 'react'
+import { useTranslations } from 'next-intl'
 import { Download, Loader2, FileSpreadsheet, BarChart2 } from 'lucide-react'
 import { predictFromCsv } from '@/lib/api'
 import type { PredictCsvResponse } from '@/types/api'
@@ -12,7 +13,10 @@ function downloadCsv(data: Record<string, unknown>[], filename: string) {
   if (!data.length) return
   const keys = Object.keys(data[0])
   const escape = (v: unknown) => JSON.stringify(v ?? '')
-  const lines = [keys.join(','), ...data.map((row) => keys.map((k) => escape(row[k])).join(','))]
+  const lines = [
+    keys.join(','),
+    ...data.map((row) => keys.map((k) => escape(row[k])).join(',')),
+  ]
   const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)
   const anchor = document.createElement('a')
@@ -23,6 +27,7 @@ function downloadCsv(data: Record<string, unknown>[], filename: string) {
 }
 
 export function CsvPredict() {
+  const t = useTranslations('csvPredict')
   const [isDragging, setIsDragging] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -30,27 +35,30 @@ export function CsvPredict() {
   const [fileName, setFileName] = useState<string | null>(null)
   const [page, setPage] = useState(0)
 
-  const handleFile = useCallback(async (file: File) => {
-    if (!file.name.toLowerCase().endsWith('.csv')) {
-      setError('Please upload a .csv file.')
-      return
-    }
-    setFileName(file.name)
-    setLoading(true)
-    setError(null)
-    setResult(null)
-    setPage(0)
-    try {
-      const res = await predictFromCsv(file)
-      setResult(res)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Batch prediction failed. Is the model loaded?')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
+  const handleFile = useCallback(
+    async (file: File) => {
+      if (!file.name.toLowerCase().endsWith('.csv')) {
+        setError(t('invalidType'))
+        return
+      }
+      setFileName(file.name)
+      setLoading(true)
+      setError(null)
+      setResult(null)
+      setPage(0)
+      try {
+        const res = await predictFromCsv(file)
+        setResult(res)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : t('batchFailed'))
+      } finally {
+        setLoading(false)
+      }
+    },
+    [t],
+  )
 
-  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const onDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     setIsDragging(false)
     const file = e.dataTransfer.files[0]
@@ -65,12 +73,8 @@ export function CsvPredict() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold text-slate-800">CSV Batch Prediction</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Upload a{' '}
-          <code className="rounded bg-slate-100 px-1 py-0.5 text-xs">.csv</code> dataset. Every row
-          will be fed to the model and the annotated results returned in a table you can download.
-        </p>
+        <h2 className="text-xl font-semibold text-slate-800">{t('heading')}</h2>
+        <p className="mt-1 text-sm text-slate-500">{t('description')}</p>
       </div>
 
       {/* Drop zone */}
@@ -113,20 +117,16 @@ export function CsvPredict() {
               loading ? 'pointer-events-none opacity-50' : ''
             }`}
           >
-            {loading ? 'Processing…' : 'Choose CSV file'}
+            {loading ? t('processing') : t('chooseFile')}
           </label>
-          <span className="text-slate-500"> or drag &amp; drop</span>
+          <span className="text-slate-500"> {t('dragDrop')}</span>
         </div>
 
         {fileName && !loading && (
-          <p className="text-sm text-slate-500">
-            File: <span className="font-medium text-slate-700">{fileName}</span>
-          </p>
+          <p className="text-sm text-slate-500">{t('fileSelected', { name: fileName })}</p>
         )}
 
-        <p className="text-xs text-slate-400">
-          Accepted: <strong>.csv</strong> — max&nbsp;50&nbsp;MB
-        </p>
+        <p className="text-xs text-slate-400">{t('hint')}</p>
       </div>
 
       {error && <Alert variant="error" message={error} onDismiss={() => setError(null)} />}
@@ -140,14 +140,15 @@ export function CsvPredict() {
               <div className="flex items-center gap-2">
                 <BarChart2 className="h-5 w-5 text-indigo-400" />
                 <div>
-                  <p className="text-xs text-slate-400">Total rows</p>
-                  <p className="text-lg font-bold text-white">{rows.length.toLocaleString()}</p>
+                  <p className="text-xs text-slate-400">{t('totalRows')}</p>
+                  <p className="text-lg font-bold text-white">
+                    {rows.length.toLocaleString()}
+                  </p>
                 </div>
               </div>
-
               {result.roc_auc !== null && (
                 <div>
-                  <p className="text-xs text-slate-400">ROC AUC</p>
+                  <p className="text-xs text-slate-400">{t('rocAuc')}</p>
                   <p className="text-lg font-bold text-emerald-400">
                     {result.roc_auc.toFixed(4)}
                   </p>
@@ -157,10 +158,10 @@ export function CsvPredict() {
 
             <button
               onClick={() => downloadCsv(rows, fileName ?? 'results')}
-              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
             >
               <Download className="h-4 w-4" />
-              Download CSV
+              {t('download')}
             </button>
           </div>
 
@@ -191,7 +192,10 @@ export function CsvPredict() {
                       const isPrediction = col === 'predicted_loan_status'
                       const isApproved = val.toLowerCase() === 'approved'
                       return (
-                        <td key={col} className="px-4 py-2.5 text-slate-700 whitespace-nowrap">
+                        <td
+                          key={col}
+                          className="whitespace-nowrap px-4 py-2.5 text-slate-700"
+                        >
                           {isPrediction ? (
                             <span
                               className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${
@@ -218,23 +222,26 @@ export function CsvPredict() {
           {totalPages > 1 && (
             <div className="flex items-center justify-between text-sm text-slate-500">
               <span>
-                Showing {page * PAGE_SIZE + 1}–
-                {Math.min((page + 1) * PAGE_SIZE, rows.length)} of {rows.length} rows
+                {t('showingRows', {
+                  from: page * PAGE_SIZE + 1,
+                  to: Math.min((page + 1) * PAGE_SIZE, rows.length),
+                  total: rows.length,
+                })}
               </span>
               <div className="flex gap-2">
                 <button
                   onClick={() => setPage((p) => Math.max(0, p - 1))}
                   disabled={page === 0}
-                  className="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-100 disabled:opacity-40 transition-colors"
+                  className="rounded-lg border border-slate-200 px-3 py-1.5 transition-colors hover:bg-slate-100 disabled:opacity-40"
                 >
-                  Previous
+                  {t('previous')}
                 </button>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                   disabled={page === totalPages - 1}
-                  className="rounded-lg border border-slate-200 px-3 py-1.5 hover:bg-slate-100 disabled:opacity-40 transition-colors"
+                  className="rounded-lg border border-slate-200 px-3 py-1.5 transition-colors hover:bg-slate-100 disabled:opacity-40"
                 >
-                  Next
+                  {t('next')}
                 </button>
               </div>
             </div>
