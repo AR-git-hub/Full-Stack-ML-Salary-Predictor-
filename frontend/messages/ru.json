@@ -1,0 +1,70 @@
+{
+  "metadata": {
+    "title": "Сервис ML-предсказаний",
+    "description": "Загрузка ML-моделей, запуск предсказаний и пакетная обработка данных."
+  },
+  "header": {
+    "title": "Сервис ML-предсказаний",
+    "subtitle": "Загрузка модели · Предсказания · Батч CSV"
+  },
+  "tabs": {
+    "upload": "Загрузка модели",
+    "predict": "Ручное предсказание",
+    "csv": "Батч CSV"
+  },
+  "modelUpload": {
+    "heading": "Загрузка модели",
+    "description": "Загрузите сериализованную scikit-learn модель (.pkl или .joblib). Модель сохранится в памяти сервера для последующих запросов.",
+    "chooseFile": "Выберите файл",
+    "dragDrop": "или перетащите сюда",
+    "selected": "Выбран: {name}",
+    "hint": "Форматы: .pkl, .joblib — макс. 50 МБ",
+    "uploading": "Загрузка…",
+    "successMessage": "Модель успешно загружена и готова к работе.",
+    "invalidType": "Неверный формат. Загрузите файл .pkl или .joblib.",
+    "unexpectedError": "Произошла непредвиденная ошибка."
+  },
+  "predictForm": {
+    "heading": "Ручное предсказание",
+    "description": "Введите пары «признак — значение», соответствующие входным данным модели, и получите результат предсказания.",
+    "featureNameLabel": "Название признака",
+    "valueLabel": "Значение",
+    "featurePlaceholder": "например, credit_score",
+    "valuePlaceholder": "например, 720",
+    "removeField": "Удалить поле",
+    "addField": "Добавить признак",
+    "runPrediction": "Выполнить предсказание",
+    "running": "Выполняется…",
+    "resultTitle": "Результат предсказания",
+    "approved": "Одобрено",
+    "rejected": "Отклонено",
+    "emptyError": "Добавьте хотя бы одно поле с непустым названием.",
+    "predictionFailed": "Ошибка предсказания. Загружена ли модель?"
+  },
+  "csvPredict": {
+    "heading": "Батч-предсказание по CSV",
+    "description": "Загрузите датасет .csv. Модель обработает каждую строку и вернёт таблицу с результатами для скачивания.",
+    "chooseFile": "Выбрать CSV-файл",
+    "dragDrop": "или перетащите сюда",
+    "hint": "Формат: .csv — макс. 50 МБ",
+    "processing": "Обработка…",
+    "fileSelected": "Файл: {name}",
+    "totalRows": "Всего строк",
+    "rocAuc": "ROC AUC",
+    "download": "Скачать CSV",
+    "showingRows": "Строки {from}–{to} из {total}",
+    "previous": "Назад",
+    "next": "Вперёд",
+    "invalidType": "Загрузите файл в формате .csv.",
+    "batchFailed": "Ошибка батч-предсказания. Загружена ли модель?"
+  },
+  "alert": {
+    "dismiss": "Закрыть"
+  },
+  "footer": {
+    "text": "Сервис ML-предсказаний — FastAPI + Next.js"
+  },
+  "languageSwitcher": {
+    "label": "Язык"
+  }
+}
