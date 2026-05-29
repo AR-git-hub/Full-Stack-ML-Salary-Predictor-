@@ -1,0 +1,128 @@
+================================================================
+  ML-ЧАСТЬ: ИНСТРУКЦИЯ ПО ЗАПУСКУ
+  Проект: Full-Stack-ML-Salary-Predictor (ветка ML)
+================================================================
+
+ТРЕБОВАНИЯ
+----------
+- Python 3.13
+- Менеджер пакетов: uv (уже настроен, виртуальное окружение .venv/)
+- Датасет: data/loan_data.csv
+- Все зависимости устанавливаются через: uv sync
+
+================================================================
+  1. ОБУЧЕНИЕ МОДЕЛИ
+================================================================
+
+Команда (запускать из корня проекта):
+
+    python -m ml.train
+
+Что происходит:
+  - Загружает loan_data.csv
+  - Делит данные: 80% train / 20% test (стратифицированно)
+  - Обучает и сравнивает 3 модели через 5-fold CV:
+      LogisticRegression  CV AUC ~ 0.9579
+      RandomForest        CV AUC ~ 0.9690
+      LightGBM-Ensemble   CV AUC ~ 0.9788  <- лучшая
+  - Сохраняет лучшую модель: models/model.pkl
+
+Финальная архитектура сохранённой модели:
+  TwoStageClassifier
+    Stage 1: previous_loan_defaults_on_file == "Yes" -> reject (правило)
+    Stage 2: LightGBM x 5 seeds (soft voting) для No-default случаев
+
+Результаты на held-out test (9000 строк):
+  ROC-AUC  = 0.9806
+  Accuracy = 94.0%
+  Yes-default ошибок = 0
+
+================================================================
+  2. ЭКСПОРТ МОДЕЛИ / MODEL CARD
+================================================================
+
+Команда:
+
+    python -m ml.export
+
+Что происходит:
+  - Загружает models/model.pkl
+  - Оценивает на test-сплите
+  - Создаёт models/model_card.json с метриками и списком фич
+
+Файл models/model_card.json содержит:
+  - Тип модели, метрики (ROC-AUC, accuracy, classification report)
+  - Список обязательных входных признаков
+  - Путь к pkl для загрузки через API
+
+================================================================
+  3. ЗАГРУЗКА МОДЕЛИ В API
+================================================================
+
+После обучения модель готова к загрузке через эндпоинт /upload-model.
+
+Через curl:
+    curl -X POST http://localhost:8000/upload-model \
+         -F "file=@models/model.pkl"
+
+Через браузер (Swagger UI):
+    Открыть http://localhost:8000/docs
+    -> POST /upload-model -> Try it out -> загрузить models/model.pkl
+
+================================================================
+  4. СТРУКТУРА ML-ФАЙЛОВ
+================================================================
+
+ml/
+  __init__.py       — пакет
+  preprocess.py     — LoanPreprocessor (sklearn-трансформер)
+                      Входные данные: сырой DataFrame (13 признаков)
+                      Выход: нормализованный DataFrame (25 признаков)
+  model.py          — TwoStageClassifier (двухуровневый классификатор)
+  train.py          — скрипт обучения и сравнения моделей
+  export.py         — скрипт экспорта + генерация model card
+
+models/
+  model.pkl         — обученная модель (создаётся после ml.train)
+  model_card.json   — карточка модели (создаётся после ml.export)
+
+================================================================
+  5. ВХОДНЫЕ ПРИЗНАКИ МОДЕЛИ
+================================================================
+
+Модель принимает DataFrame/dict со следующими полями:
+
+  person_age                       float   возраст заёмщика
+  person_gender                    str     'male' / 'female'
+  person_education                 str     'High School' / 'Associate' /
+                                           'Bachelor' / 'Master' / 'Doctorate'
+  person_income                    float   годовой доход ($)
+  person_emp_exp                   int     опыт работы (лет)
+  person_home_ownership            str     'RENT' / 'OWN' / 'MORTGAGE' / 'OTHER'
+  loan_amnt                        float   сумма кредита ($)
+  loan_intent                      str     'PERSONAL' / 'EDUCATION' / 'MEDICAL' /
+                                           'VENTURE' / 'HOMEIMPROVEMENT' /
+                                           'DEBTCONSOLIDATION'
+  loan_int_rate                    float   процентная ставка (%)
+  loan_percent_income              float   доля кредита от дохода (0.0 - 1.0)
+  cb_person_cred_hist_length       float   длина кредитной истории (лет)
+  credit_score                     int     кредитный скор (390 - 850)
+  previous_loan_defaults_on_file   str     'Yes' / 'No'
+
+Выход модели:
+  predict()        -> 0 (rejected) или 1 (approved)
+  predict_proba()  -> [P(rejected), P(approved)]
+
+================================================================
+  6. КЛЮЧЕВЫЕ ФАКТЫ О МОДЕЛИ
+================================================================
+
+- Все заёмщики с previous_loan_defaults_on_file == "Yes"
+  получают автоматический отказ (22 858 таких в датасете, 0% одобрений)
+
+- Потолок качества датасета ~0.943 No-default AUC
+  (проверено через намеренное переобучение)
+
+- Достичь ROC-AUC > 0.981 на этом датасете без переобучения невозможно
+
+================================================================
