@@ -20,5 +20,7 @@ jobs:
             cd server
             git fetch origin
             git reset --hard origin/main
+            docker volume create certbot-conf 2>/dev/null || true
+            docker volume create certbot-www  2>/dev/null || true
             docker compose down -v
             docker compose up -d --build
