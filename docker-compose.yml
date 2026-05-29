@@ -1,0 +1,74 @@
+services:
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    expose:
+      - 3000
+    environment:
+      NODE_ENV: production
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    expose:
+      - 8000
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - app-network
+    restart: unless-stopped
+    environment:
+      DOMAIN: 82.117.87.36.nip.io
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+
+  certbot-init:
+    image: certbot/certbot:latest
+    restart: on-failure
+    depends_on:
+      - nginx
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+      - ./certbot/init.sh:/init.sh:ro
+    entrypoint: ["/bin/sh", "/init.sh"]
+    environment:
+      DOMAIN: 82.117.87.36.nip.io
+      CERTBOT_EMAIL: vinogradovivan548@gmail.com
+
+  certbot-renew:
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    volumes:
+      - certbot-conf:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+      - ./certbot/renew.sh:/renew.sh:ro
+    entrypoint: ["/bin/sh", "/renew.sh"]
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  certbot-conf:
+    external: true
+  certbot-www:
+    external: true
