@@ -1,27 +1,26 @@
 services:
 
-  # ── Next.js frontend ─────────────────────────────────────────────────────────
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    expose:
+      - 3000
     environment:
       NODE_ENV: production
     networks:
       - app-network
     restart: unless-stopped
 
-  # ── FastAPI ML backend (placeholder — replace with your actual image/build) ──
   backend:
-    image: your-fastapi-backend:latest   # ← swap this
-    # build:
-    #   context: ./backend
-    #   dockerfile: Dockerfile
+    build:
+      context: ./backend
+    expose:
+      - 8000
     networks:
       - app-network
     restart: unless-stopped
 
-  # ── Nginx reverse proxy ───────────────────────────────────────────────────────
   nginx:
     build:
       context: ./nginx

@@ -1,0 +1,70 @@
+{
+  "metadata": {
+    "title": "ML Prediction Service",
+    "description": "Upload ML models and make predictions via an intuitive web interface."
+  },
+  "header": {
+    "title": "ML Prediction Service",
+    "subtitle": "Upload model · Run predictions · Batch CSV"
+  },
+  "tabs": {
+    "upload": "Model Upload",
+    "predict": "Manual Prediction",
+    "csv": "Batch CSV"
+  },
+  "modelUpload": {
+    "heading": "Upload Model",
+    "description": "Upload a serialized scikit-learn model (.pkl or .joblib). The model will be held in memory for subsequent prediction requests.",
+    "chooseFile": "Choose a file",
+    "dragDrop": "or drag & drop here",
+    "selected": "Selected: {name}",
+    "hint": "Supported: .pkl, .joblib — max 50 MB",
+    "uploading": "Uploading…",
+    "successMessage": "Model uploaded and loaded successfully.",
+    "invalidType": "Invalid file type. Please upload a .pkl or .joblib file.",
+    "unexpectedError": "An unexpected error occurred."
+  },
+  "predictForm": {
+    "heading": "Manual Prediction",
+    "description": "Enter feature name–value pairs that match your uploaded model's expected features, then run prediction to get a single result.",
+    "featureNameLabel": "Feature name",
+    "valueLabel": "Value",
+    "featurePlaceholder": "e.g. credit_score",
+    "valuePlaceholder": "e.g. 720",
+    "removeField": "Remove field",
+    "addField": "Add feature field",
+    "runPrediction": "Run Prediction",
+    "running": "Running prediction…",
+    "resultTitle": "Prediction Result",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "emptyError": "Please add at least one feature field with a non-empty name.",
+    "predictionFailed": "Prediction failed. Is the model loaded?"
+  },
+  "csvPredict": {
+    "heading": "CSV Batch Prediction",
+    "description": "Upload a .csv dataset. Every row will be fed to the model and the annotated results returned in a table you can download.",
+    "chooseFile": "Choose CSV file",
+    "dragDrop": "or drag & drop",
+    "hint": "Accepted: .csv — max 50 MB",
+    "processing": "Processing…",
+    "fileSelected": "File: {name}",
+    "totalRows": "Total rows",
+    "rocAuc": "ROC AUC",
+    "download": "Download CSV",
+    "showingRows": "Showing {from}–{to} of {total} rows",
+    "previous": "Previous",
+    "next": "Next",
+    "invalidType": "Please upload a .csv file.",
+    "batchFailed": "Batch prediction failed. Is the model loaded?"
+  },
+  "alert": {
+    "dismiss": "Dismiss"
+  },
+  "footer": {
+    "text": "ML Prediction Service — FastAPI + Next.js"
+  },
+  "languageSwitcher": {
+    "label": "Language"
+  }
+}

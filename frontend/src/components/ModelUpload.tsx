@@ -1,6 +1,7 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useState, type DragEvent, type ChangeEvent } from 'react'
+import { useTranslations } from 'next-intl'
 import { Upload, FileCheck, Loader2 } from 'lucide-react'
 import { uploadModel } from '@/lib/api'
 import { Alert } from '@/components/ui/Alert'
@@ -8,37 +9,41 @@ import { Alert } from '@/components/ui/Alert'
 type Status = 'idle' | 'loading' | 'success' | 'error'
 
 export function ModelUpload() {
+  const t = useTranslations('modelUpload')
   const [status, setStatus] = useState<Status>('idle')
   const [message, setMessage] = useState('')
   const [isDragging, setIsDragging] = useState(false)
   const [fileName, setFileName] = useState<string | null>(null)
 
-  const handleFile = useCallback(async (file: File) => {
-    if (!file.name.match(/\.(pkl|joblib)$/i)) {
-      setStatus('error')
-      setMessage('Invalid file type. Please upload a .pkl or .joblib file.')
-      return
-    }
-    setFileName(file.name)
-    setStatus('loading')
-    setMessage('')
-    try {
-      const res = await uploadModel(file)
-      if (res.status === 'ok') {
-        setStatus('success')
-        setMessage('Model uploaded and loaded successfully.')
-      } else {
+  const handleFile = useCallback(
+    async (file: File) => {
+      if (!file.name.match(/\.(pkl|joblib)$/i)) {
         setStatus('error')
-        setMessage(res.detail ?? 'Upload failed.')
+        setMessage(t('invalidType'))
+        return
       }
-    } catch (err) {
-      setStatus('error')
-      setMessage(err instanceof Error ? err.message : 'An unexpected error occurred.')
-    }
-  }, [])
+      setFileName(file.name)
+      setStatus('loading')
+      setMessage('')
+      try {
+        const res = await uploadModel(file)
+        if (res.status === 'ok') {
+          setStatus('success')
+          setMessage(t('successMessage'))
+        } else {
+          setStatus('error')
+          setMessage(res.detail ?? t('unexpectedError'))
+        }
+      } catch (err) {
+        setStatus('error')
+        setMessage(err instanceof Error ? err.message : t('unexpectedError'))
+      }
+    },
+    [t],
+  )
 
   const onDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
+    (e: DragEvent<HTMLDivElement>) => {
       e.preventDefault()
       setIsDragging(false)
       const file = e.dataTransfer.files[0]
@@ -47,7 +52,7 @@ export function ModelUpload() {
     [handleFile],
   )
 
-  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) handleFile(file)
     e.target.value = ''
@@ -62,13 +67,8 @@ export function ModelUpload() {
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-xl font-semibold text-slate-800">Upload Model</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Upload a serialized scikit-learn model (
-          <code className="rounded bg-slate-100 px-1 py-0.5 text-xs">.pkl</code> or{' '}
-          <code className="rounded bg-slate-100 px-1 py-0.5 text-xs">.joblib</code>). The model
-          will be held in memory for subsequent prediction requests.
-        </p>
+        <h2 className="text-xl font-semibold text-slate-800">{t('heading')}</h2>
+        <p className="mt-1 text-sm text-slate-500">{t('description')}</p>
       </div>
 
       <div
@@ -78,7 +78,7 @@ export function ModelUpload() {
         }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={onDrop}
-        className={`relative flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed p-14 text-center transition-colors ${
+        className={`flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed p-14 text-center transition-colors ${
           isDragging
             ? 'border-indigo-400 bg-indigo-50'
             : status === 'success'
@@ -111,21 +111,16 @@ export function ModelUpload() {
                 status === 'loading' ? 'pointer-events-none opacity-50' : ''
               }`}
             >
-              {status === 'loading' ? 'Uploading…' : 'Choose a file'}
+              {status === 'loading' ? t('uploading') : t('chooseFile')}
             </label>
-            <span className="text-slate-500"> or drag &amp; drop here</span>
+            <span className="text-slate-500"> {t('dragDrop')}</span>
           </p>
           {fileName && (
-            <p className="text-sm text-slate-500">
-              Selected:{' '}
-              <span className="font-medium text-slate-700">{fileName}</span>
-            </p>
+            <p className="text-sm text-slate-500">{t('selected', { name: fileName })}</p>
           )}
         </div>
 
-        <p className="text-xs text-slate-400">
-          Supported: <strong>.pkl</strong>, <strong>.joblib</strong> — max&nbsp;50&nbsp;MB
-        </p>
+        <p className="text-xs text-slate-400">{t('hint')}</p>
       </div>
 
       {(status === 'success' || status === 'error') && (
