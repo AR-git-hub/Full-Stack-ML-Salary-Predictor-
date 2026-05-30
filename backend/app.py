@@ -1,20 +1,23 @@
 import io
 import os
+import uuid
 import pickle
+from collections import OrderedDict
+from typing import Any
 
 import pandas as pd
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from pydantic import BaseModel
 from sklearn.metrics import roc_auc_score
+from starlette.middleware.sessions import SessionMiddleware
 
-MODEL_PATH = "models/model.pkl"
-model = None
+models_store: OrderedDict[str, Any] = OrderedDict()
 
 app = FastAPI()
-
-if os.path.exists(MODEL_PATH):
-    with open(MODEL_PATH, "rb") as f:
-        model = pickle.load(f)
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=str(uuid.uuid4()),
+)
 
 
 def _label(pred) -> str:
@@ -22,17 +25,17 @@ def _label(pred) -> str:
 
 
 @app.post("/upload-model")
-async def upload_model(file: UploadFile = File(...)):
+async def upload_model(request: Request, file: UploadFile = File(...)):
     if not (file.filename or "").endswith(".pkl"):
         raise HTTPException(status_code=400, detail="Only .pkl files are supported")
 
     content = await file.read()
-    os.makedirs("models", exist_ok=True)
-    with open(MODEL_PATH, "wb") as f:
-        f.write(content)
+    loaded = pickle.load(io.BytesIO(content))
 
-    global model
-    model = pickle.load(io.BytesIO(content))
+    session_id = str(uuid.uuid4())
+    models_store[session_id] = loaded
+    request.session["session_id"] = session_id
+
     return {"status": "ok"}
 
 
@@ -41,23 +44,27 @@ class PredictRequest(BaseModel):
 
 
 @app.post("/predict")
-async def predict(request: PredictRequest):
-    if model is None:
+async def predict(request: Request, body: PredictRequest):
+    session_id = request.session.get("session_id")
+    m = models_store.get(session_id) if session_id else None
+    if m is None:
         raise HTTPException(status_code=400, detail="No model loaded. Please upload a model first.")
 
-    df = pd.DataFrame(request.records)
-    predictions = model.predict(df)
+    df = pd.DataFrame(body.records)
+    predictions = m.predict(df)
 
     results = [
         {"features": record, "loan_status": _label(pred)}
-        for record, pred in zip(request.records, predictions)
+        for record, pred in zip(body.records, predictions)
     ]
     return {"results": results}
 
 
 @app.post("/predict-from-csv")
-async def predict_from_csv(file: UploadFile = File(...)):
-    if model is None:
+async def predict_from_csv(request: Request, file: UploadFile = File(...)):
+    session_id = request.session.get("session_id")
+    m = models_store.get(session_id) if session_id else None
+    if m is None:
         raise HTTPException(status_code=400, detail="No model loaded. Please upload a model first.")
 
     content = await file.read()
@@ -68,12 +75,12 @@ async def predict_from_csv(file: UploadFile = File(...)):
         y_true = df["loan_status"]
         df = df.drop(columns=["loan_status"])
 
-    predictions = model.predict(df)
+    predictions = m.predict(df)
 
     roc_auc = None
-    if y_true is not None and hasattr(model, "predict_proba"):
+    if y_true is not None and hasattr(m, "predict_proba"):
         try:
-            proba = model.predict_proba(df)[:, 1]
+            proba = m.predict_proba(df)[:, 1]
             roc_auc = float(roc_auc_score(y_true, proba))
         except Exception:
             pass

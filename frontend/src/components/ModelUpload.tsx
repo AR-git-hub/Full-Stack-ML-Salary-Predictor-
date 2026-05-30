@@ -90,7 +90,7 @@ export function ModelUpload() {
         }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={onDrop}
-        className={`flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed p-14 text-center transition-colors ${
+        className={`flex flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed p-8 text-center transition-colors sm:p-14 ${
           isDragging
             ? 'border-indigo-400 bg-indigo-50'
             : status === 'success'
@@ -108,11 +108,11 @@ export function ModelUpload() {
         />
 
         {status === 'loading' ? (
-          <Loader2 className="h-14 w-14 animate-spin text-indigo-400" />
+          <Loader2 className="h-10 w-10 animate-spin text-indigo-400 sm:h-14 sm:w-14" />
         ) : status === 'success' ? (
-          <FileCheck className="h-14 w-14 text-emerald-500" />
+          <FileCheck className="h-10 w-10 text-emerald-500 sm:h-14 sm:w-14" />
         ) : (
-          <Upload className="h-14 w-14 text-slate-300" />
+          <Upload className="h-10 w-10 text-slate-300 sm:h-14 sm:w-14" />
         )}
 
         <div className="space-y-1">
