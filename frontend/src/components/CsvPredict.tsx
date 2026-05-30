@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState, type DragEvent } from 'react'
+import { useCallback, useState, useEffect, type DragEvent } from 'react'
 import { useTranslations } from 'next-intl'
 import { Download, Loader2, FileSpreadsheet, BarChart2 } from 'lucide-react'
 import { predictFromCsv } from '@/lib/api'
@@ -8,6 +8,11 @@ import type { PredictCsvResponse } from '@/types/api'
 import { Alert } from '@/components/ui/Alert'
 
 const PAGE_SIZE = 10
+
+// Module-level cache — survives language switches (Next.js soft navigation
+// remounts the React tree but keeps JS modules alive in the browser).
+let _cachedResult: PredictCsvResponse | null = null
+let _cachedFileName: string | null = null
 
 function downloadCsv(data: Record<string, unknown>[], filename: string) {
   if (!data.length) return
@@ -35,6 +40,13 @@ export function CsvPredict() {
   const [fileName, setFileName] = useState<string | null>(null)
   const [page, setPage] = useState(0)
 
+  useEffect(() => {
+    if (_cachedResult) {
+      setResult(_cachedResult)
+      setFileName(_cachedFileName)
+    }
+  }, [])
+
   const handleFile = useCallback(
     async (file: File) => {
       if (!file.name.toLowerCase().endsWith('.csv')) {
@@ -46,8 +58,12 @@ export function CsvPredict() {
       setError(null)
       setResult(null)
       setPage(0)
+      _cachedResult = null
+      _cachedFileName = null
       try {
         const res = await predictFromCsv(file)
+        _cachedResult = res
+        _cachedFileName = file.name
         setResult(res)
       } catch (err) {
         setError(err instanceof Error ? err.message : t('batchFailed'))

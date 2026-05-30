@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState, type DragEvent, type ChangeEvent } from 'react'
+import { useCallback, useState, useEffect, type DragEvent, type ChangeEvent } from 'react'
 import { useTranslations } from 'next-intl'
 import { Upload, FileCheck, Loader2 } from 'lucide-react'
 import { uploadModel } from '@/lib/api'
@@ -8,12 +8,22 @@ import { Alert } from '@/components/ui/Alert'
 
 type Status = 'idle' | 'loading' | 'success' | 'error'
 
+let _cachedUpload: { fileName: string; message: string } | null = null
+
 export function ModelUpload() {
   const t = useTranslations('modelUpload')
   const [status, setStatus] = useState<Status>('idle')
   const [message, setMessage] = useState('')
   const [isDragging, setIsDragging] = useState(false)
   const [fileName, setFileName] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (_cachedUpload) {
+      setStatus('success')
+      setMessage(_cachedUpload.message)
+      setFileName(_cachedUpload.fileName)
+    }
+  }, [])
 
   const handleFile = useCallback(
     async (file: File) => {
@@ -30,6 +40,7 @@ export function ModelUpload() {
         if (res.status === 'ok') {
           setStatus('success')
           setMessage(t('successMessage'))
+          _cachedUpload = { fileName: file.name, message: t('successMessage') }
         } else {
           setStatus('error')
           setMessage(res.detail ?? t('unexpectedError'))
@@ -62,6 +73,7 @@ export function ModelUpload() {
     setStatus('idle')
     setMessage('')
     setFileName(null)
+    _cachedUpload = null
   }
 
   return (

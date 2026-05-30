@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
 import { useTranslations } from 'next-intl'
 import { Plus, Trash2, Loader2, Sparkles } from 'lucide-react'
 import { predict } from '@/lib/api'
@@ -14,10 +14,23 @@ interface Field {
 }
 
 const DEFAULT_FIELDS: Field[] = [
-  { id: 1, key: 'credit_score', value: '' },
-  { id: 2, key: 'annual_income', value: '' },
-  { id: 3, key: 'loan_amount', value: '' },
+  { id: 1,  key: 'person_age',                      value: '' },
+  { id: 2,  key: 'person_gender',                   value: '' },
+  { id: 3,  key: 'person_education',                value: '' },
+  { id: 4,  key: 'person_income',                   value: '' },
+  { id: 5,  key: 'person_emp_exp',                  value: '' },
+  { id: 6,  key: 'person_home_ownership',           value: '' },
+  { id: 7,  key: 'loan_amnt',                       value: '' },
+  { id: 8,  key: 'loan_intent',                     value: '' },
+  { id: 9,  key: 'loan_int_rate',                   value: '' },
+  { id: 10, key: 'loan_percent_income',             value: '' },
+  { id: 11, key: 'cb_person_cred_hist_length',      value: '' },
+  { id: 12, key: 'credit_score',                    value: '' },
+  { id: 13, key: 'previous_loan_defaults_on_file',  value: '' },
 ]
+
+let _cachedFields: Field[] | null = null
+let _cachedResult: PredictRecord | null = null
 
 function ResultCard({ record }: { record: PredictRecord }) {
   const t = useTranslations('predictForm')
@@ -66,17 +79,31 @@ export function PredictForm() {
   const [result, setResult] = useState<PredictRecord | null>(null)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    if (_cachedFields) {
+      setFields(_cachedFields)
+      setNextId(Math.max(..._cachedFields.map((f) => f.id)) + 1)
+    }
+    if (_cachedResult) setResult(_cachedResult)
+  }, [])
+
   const addField = () => {
-    setFields((prev) => [...prev, { id: nextId, key: '', value: '' }])
+    const newFields = [...fields, { id: nextId, key: '', value: '' }]
+    _cachedFields = newFields
+    setFields(newFields)
     setNextId((n) => n + 1)
   }
 
   const removeField = (id: number) => {
-    setFields((prev) => prev.filter((f) => f.id !== id))
+    const newFields = fields.filter((f) => f.id !== id)
+    _cachedFields = newFields
+    setFields(newFields)
   }
 
   const updateField = (id: number, prop: 'key' | 'value', val: string) => {
-    setFields((prev) => prev.map((f) => (f.id === id ? { ...f, [prop]: val } : f)))
+    const newFields = fields.map((f) => (f.id === id ? { ...f, [prop]: val } : f))
+    _cachedFields = newFields
+    setFields(newFields)
   }
 
   const handleSubmit = async (e: FormEvent) => {
@@ -99,7 +126,9 @@ export function PredictForm() {
     setLoading(true)
     try {
       const res = await predict([record])
-      setResult(res.results[0] ?? null)
+      const record0 = res.results[0] ?? null
+      _cachedResult = record0
+      setResult(record0)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('predictionFailed'))
     } finally {

@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
-import { NextIntlClientProvider } from 'next-intl'
-import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { notFound } from 'next/navigation'
 import { routing, type Locale } from '@/i18n/routing'
+import { IntlProvider } from '@/components/IntlProvider'
 
 interface Props {
   children: ReactNode
@@ -31,11 +31,9 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   setRequestLocale(locale)
 
-  const messages = await getMessages()
-
   return (
-    <NextIntlClientProvider messages={messages}>
+    <IntlProvider locale={locale as Locale}>
       {children}
-    </NextIntlClientProvider>
+    </IntlProvider>
   )
 }

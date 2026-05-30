@@ -1,18 +1,13 @@
 'use client'
 
 import { useLocale, useTranslations } from 'next-intl'
-import { usePathname, useRouter } from '@/i18n/navigation'
 import { routing } from '@/i18n/routing'
+import { useLocaleSwitch } from '@/components/IntlProvider'
 
 export function LanguageSwitcher() {
   const locale = useLocale()
-  const router = useRouter()
-  const pathname = usePathname()
+  const { switchLocale } = useLocaleSwitch()
   const t = useTranslations('languageSwitcher')
-
-  const switchTo = (newLocale: string) => {
-    router.replace(pathname, { locale: newLocale })
-  }
 
   return (
     <div className="flex items-center gap-2 shrink-0">
@@ -23,7 +18,7 @@ export function LanguageSwitcher() {
         {routing.locales.map((l) => (
           <button
             key={l}
-            onClick={() => switchTo(l)}
+            onClick={() => switchLocale(l as 'en' | 'ru')}
             aria-pressed={locale === l}
             className={`px-3 py-1.5 text-xs font-semibold transition-colors ${
               locale === l

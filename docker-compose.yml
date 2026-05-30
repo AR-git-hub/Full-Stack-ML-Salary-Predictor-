@@ -4,6 +4,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      provenance: false
     expose:
       - 3000
     environment:
@@ -15,6 +16,7 @@ services:
   backend:
     build:
       context: ./backend
+      provenance: false
     expose:
       - 8000
     networks:

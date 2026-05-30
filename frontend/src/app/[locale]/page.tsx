@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { ComponentType } from 'react'
 import { useTranslations } from 'next-intl'
 import { Upload, Brain, Table2 } from 'lucide-react'
@@ -11,11 +11,24 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 type TabId = 'upload' | 'predict' | 'csv'
 
+const VALID_TABS: TabId[] = ['upload', 'predict', 'csv']
+
+let _cachedTab: TabId | null = null
+
 export default function HomePage() {
   const tHeader = useTranslations('header')
   const tTabs = useTranslations('tabs')
   const tFooter = useTranslations('footer')
   const [activeTab, setActiveTab] = useState<TabId>('upload')
+
+  useEffect(() => {
+    if (_cachedTab && VALID_TABS.includes(_cachedTab)) setActiveTab(_cachedTab)
+  }, [])
+
+  const handleTabChange = (tab: TabId) => {
+    _cachedTab = tab
+    setActiveTab(tab)
+  }
 
   const TABS: { id: TabId; label: string; icon: ComponentType<{ className?: string }> }[] = [
     { id: 'upload', label: tTabs('upload'), icon: Upload },
@@ -50,7 +63,7 @@ export default function HomePage() {
                 key={id}
                 role="tab"
                 aria-selected={activeTab === id}
-                onClick={() => setActiveTab(id)}
+                onClick={() => handleTabChange(id)}
                 className={`flex items-center gap-2 border-b-2 px-5 py-4 text-sm font-medium transition-colors ${
                   activeTab === id
                     ? 'border-indigo-600 text-indigo-600'
@@ -67,9 +80,9 @@ export default function HomePage() {
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
         <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
-          {activeTab === 'upload' && <ModelUpload />}
-          {activeTab === 'predict' && <PredictForm />}
-          {activeTab === 'csv' && <CsvPredict />}
+          <div className={activeTab !== 'upload' ? 'hidden' : undefined}><ModelUpload /></div>
+          <div className={activeTab !== 'predict' ? 'hidden' : undefined}><PredictForm /></div>
+          <div className={activeTab !== 'csv' ? 'hidden' : undefined}><CsvPredict /></div>
         </div>
       </main>
 
