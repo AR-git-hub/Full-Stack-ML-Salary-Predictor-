@@ -23,4 +23,4 @@ jobs:
             docker volume create certbot-conf 2>/dev/null || true
             docker volume create certbot-www  2>/dev/null || true
             docker compose down -v
-            docker compose up -d --build
+            BUILDX_NO_DEFAULT_ATTESTATIONS=1 docker compose up -d --build
