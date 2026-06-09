@@ -24,7 +24,7 @@ source ./.venv/bin/activate
 uv run train.py
 ```
 
-## Разворачиваем сайт на сервере 82.117.87.36
+## Разворачиваем сайт на сервере 45.146.131.194
 ```bash
 docker compose up -d --build
 ```

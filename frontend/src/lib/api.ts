@@ -22,7 +22,9 @@ export async function uploadModel(file: File): Promise<UploadModelResponse> {
   return handleResponse<UploadModelResponse>(res)
 }
 
-export async function predict(records: Record<string, unknown>[]): Promise<PredictResponse> {
+export async function predict(
+  records: Record<string, unknown>[],
+): Promise<PredictResponse> {
   const body: PredictRequest = { records }
   const res = await fetch(`${BASE}/predict`, {
     method: 'POST',

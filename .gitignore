@@ -3,6 +3,7 @@
 __pycache__/
 *.py[codz]
 *$py.class
+presentation.pptx
 
 # C extensions
 *.so
