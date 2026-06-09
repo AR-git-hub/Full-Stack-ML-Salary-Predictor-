@@ -2,6 +2,10 @@
 
 Простой ML-сервис по лабораторной работе: FastAPI + HTML-интерфейс.
 
+## Скринкасты
+- [ml](https://drive.google.com/file/d/1DaBxKRoujIqdeu63G8d5ZjgNkdpTYJXo/view?usp=sharing)
+- [web](https://drive.google.com/file/d/1nICKNFQwi8KFZtOA_G_XGnfqlyZbMLGl/view?usp=sharing)
+
 ## Клонируем репозиторий
 ```bash
 mkdir site
