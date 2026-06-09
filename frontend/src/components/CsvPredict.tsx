@@ -9,8 +9,6 @@ import { Alert } from '@/components/ui/Alert'
 
 const PAGE_SIZE = 10
 
-// Module-level cache — survives language switches (Next.js soft navigation
-// remounts the React tree but keeps JS modules alive in the browser).
 let _cachedResult: PredictCsvResponse | null = null
 let _cachedFileName: string | null = null
 
@@ -101,7 +99,7 @@ export function CsvPredict() {
         }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={onDrop}
-        className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-12 text-center transition-colors ${
+        className={`flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed p-8 text-center transition-colors sm:p-12 ${
           isDragging
             ? 'border-indigo-400 bg-indigo-50'
             : 'border-slate-300 bg-slate-50 hover:border-indigo-300 hover:bg-indigo-50/30'
@@ -121,9 +119,9 @@ export function CsvPredict() {
         />
 
         {loading ? (
-          <Loader2 className="h-12 w-12 animate-spin text-indigo-400" />
+          <Loader2 className="h-10 w-10 animate-spin text-indigo-400 sm:h-12 sm:w-12" />
         ) : (
-          <FileSpreadsheet className="h-12 w-12 text-slate-300" />
+          <FileSpreadsheet className="h-10 w-10 text-slate-300 sm:h-12 sm:w-12" />
         )}
 
         <div>
@@ -151,7 +149,7 @@ export function CsvPredict() {
       {result && rows.length > 0 && (
         <div className="space-y-4">
           {/* Metrics bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-slate-800 px-6 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl bg-slate-800 px-4 py-4 sm:px-6">
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-2">
                 <BarChart2 className="h-5 w-5 text-indigo-400" />

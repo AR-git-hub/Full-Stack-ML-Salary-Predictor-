@@ -145,7 +145,7 @@ export function PredictForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2.5">
-          <div className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-slate-400">
+          <div className="hidden sm:grid sm:grid-cols-[1fr_auto_1fr_auto] items-center gap-2 px-1 text-xs font-medium uppercase tracking-wide text-slate-400">
             <span>{t('featureNameLabel')}</span>
             <span />
             <span>{t('valueLabel')}</span>
@@ -155,23 +155,25 @@ export function PredictForm() {
           {fields.map((field) => (
             <div
               key={field.id}
-              className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-2"
+              className="grid grid-cols-[1fr_auto] items-center gap-2 sm:grid-cols-[1fr_auto_1fr_auto]"
             >
-              <input
-                type="text"
-                placeholder={t('featurePlaceholder')}
-                value={field.key}
-                onChange={(e) => updateField(field.id, 'key', e.target.value)}
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm transition-shadow focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-              />
-              <span className="select-none font-mono text-slate-400">=</span>
-              <input
-                type="text"
-                placeholder={t('valuePlaceholder')}
-                value={field.value}
-                onChange={(e) => updateField(field.id, 'value', e.target.value)}
-                className="rounded-lg border border-slate-300 px-3 py-2 text-sm transition-shadow focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-              />
+              <div className="flex flex-col gap-2 sm:contents">
+                <input
+                  type="text"
+                  placeholder={t('featurePlaceholder')}
+                  value={field.key}
+                  onChange={(e) => updateField(field.id, 'key', e.target.value)}
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm transition-shadow focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                />
+                <span className="hidden select-none font-mono text-slate-400 sm:block">=</span>
+                <input
+                  type="text"
+                  placeholder={t('valuePlaceholder')}
+                  value={field.value}
+                  onChange={(e) => updateField(field.id, 'value', e.target.value)}
+                  className="rounded-lg border border-slate-300 px-3 py-2 text-sm transition-shadow focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                />
+              </div>
               <button
                 type="button"
                 onClick={() => removeField(field.id)}

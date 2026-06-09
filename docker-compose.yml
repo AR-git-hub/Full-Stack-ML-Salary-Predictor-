@@ -35,7 +35,7 @@ services:
       - app-network
     restart: unless-stopped
     environment:
-      DOMAIN: 82.117.87.36.nip.io
+      DOMAIN: 45.146.131.194.nip.io
     volumes:
       - certbot-conf:/etc/letsencrypt
       - certbot-www:/var/www/certbot
@@ -51,7 +51,7 @@ services:
       - ./certbot/init.sh:/init.sh:ro
     entrypoint: ["/bin/sh", "/init.sh"]
     environment:
-      DOMAIN: 82.117.87.36.nip.io
+      DOMAIN: 45.146.131.194.nip.io
       CERTBOT_EMAIL: vinogradovivan548@gmail.com
 
   certbot-renew:

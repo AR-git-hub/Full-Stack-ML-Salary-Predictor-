@@ -48,7 +48,7 @@ export default function HomePage() {
               <h1 className="text-lg font-bold text-white leading-tight">
                 {tHeader('title')}
               </h1>
-              <p className="text-xs text-slate-400">{tHeader('subtitle')}</p>
+              <p className="hidden sm:block text-xs text-slate-400">{tHeader('subtitle')}</p>
             </div>
           </div>
           <LanguageSwitcher />
@@ -64,22 +64,22 @@ export default function HomePage() {
                 role="tab"
                 aria-selected={activeTab === id}
                 onClick={() => handleTabChange(id)}
-                className={`flex items-center gap-2 border-b-2 px-5 py-4 text-sm font-medium transition-colors ${
+                className={`flex flex-1 items-center justify-center gap-2 border-b-2 px-2 py-3 text-sm font-medium transition-colors sm:flex-none sm:px-5 sm:py-4 ${
                   activeTab === id
                     ? 'border-indigo-600 text-indigo-600'
                     : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'
                 }`}
               >
-                <Icon className="h-4 w-4" />
-                {label}
+                <Icon className="h-5 w-5 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">{label}</span>
               </button>
             ))}
           </nav>
         </div>
       </div>
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
-        <div className="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-4 sm:py-8">
+        <div className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-slate-200 sm:p-8">
           <div className={activeTab !== 'upload' ? 'hidden' : undefined}><ModelUpload /></div>
           <div className={activeTab !== 'predict' ? 'hidden' : undefined}><PredictForm /></div>
           <div className={activeTab !== 'csv' ? 'hidden' : undefined}><CsvPredict /></div>
